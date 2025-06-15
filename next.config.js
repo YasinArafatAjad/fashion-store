@@ -8,9 +8,6 @@ const nextConfig = {
   images: { 
     unoptimized: true,
     domains: ['res.cloudinary.com', 'images.unsplash.com']
-  },
-  experimental: {
-    appDir: false
   }
 };
 

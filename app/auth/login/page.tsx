@@ -1,21 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, Shield } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { useAuth } from '../../../contexts/AuthContext';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
 
 /**
- * Admin Login Page Component
- * Handles admin authentication and login
+ * User Login Page Component
+ * Handles user authentication and login
  */
-export default function AdminLoginPage() {
+export default function LoginPage() {
   const router = useRouter();
   const { signin } = useAuth();
   
@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
   /**
    * Handle form input changes
    */
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -43,25 +43,25 @@ export default function AdminLoginPage() {
   /**
    * Handle form submission
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      const result = await signin(formData.email, formData.password);
+      await signin(formData.email, formData.password);
       
-      // Check if user has admin privileges
-      // This would typically be done by checking user role from database
-      // For now, we'll redirect to admin panel and let the admin panel handle authorization
-      router.push('/admin');
-    } catch (error) {
-      console.error('Admin login error:', error);
+      // Redirect to dashboard or previous page
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectTo = urlParams.get('redirect') || '/dashboard';
+      router.push(redirectTo);
+    } catch (error: any) {
+      console.error('Login error:', error);
       
       // Handle specific Firebase errors
       switch (error.code) {
         case 'auth/user-not-found':
-          setError('No admin account found with this email address.');
+          setError('No account found with this email address.');
           break;
         case 'auth/wrong-password':
           setError('Incorrect password. Please try again.');
@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
           setError('Too many failed attempts. Please try again later.');
           break;
         default:
-          setError('Admin login failed. Please check your credentials and try again.');
+          setError('Login failed. Please check your credentials and try again.');
       }
     } finally {
       setIsLoading(false);
@@ -95,22 +95,19 @@ export default function AdminLoginPage() {
           </Link>
         </motion.div>
 
-        {/* Admin Login Card */}
+        {/* Login Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <Card className="shadow-xl border-primary/20">
-            <CardHeader className="space-y-1 text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-primary" />
-              </div>
-              <CardTitle className="text-2xl font-bold">
-                Admin Access
+          <Card className="shadow-xl">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold text-center">
+                Welcome Back
               </CardTitle>
-              <CardDescription>
-                Sign in to access the admin dashboard
+              <CardDescription className="text-center">
+                Sign in to your account to continue shopping
               </CardDescription>
             </CardHeader>
             
@@ -129,14 +126,14 @@ export default function AdminLoginPage() {
 
                 {/* Email Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Admin Email</Label>
+                  <Label htmlFor="email">Email Address</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="Enter admin email"
+                      placeholder="Enter your email"
                       value={formData.email}
                       onChange={handleChange}
                       className="pl-10"
@@ -155,7 +152,7 @@ export default function AdminLoginPage() {
                       id="password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter admin password"
+                      placeholder="Enter your password"
                       value={formData.password}
                       onChange={handleChange}
                       className="pl-10 pr-10"
@@ -173,25 +170,35 @@ export default function AdminLoginPage() {
                   </div>
                 </div>
 
+                {/* Forgot Password Link */}
+                <div className="text-right">
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-sm text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
                   className="w-full"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Signing in...' : 'Sign In as Admin'}
+                  {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
 
-                {/* Regular Login Link */}
+                {/* Register Link */}
                 <div className="text-center">
                   <span className="text-gray-600 dark:text-gray-400">
-                    Not an admin?{' '}
+                    Don't have an account?{' '}
                   </span>
                   <Link
-                    href="/auth/login"
+                    href="/auth/register"
                     className="text-primary hover:text-primary/80 transition-colors font-medium"
                   >
-                    Regular login
+                    Sign up here
                   </Link>
                 </div>
               </form>
@@ -199,18 +206,30 @@ export default function AdminLoginPage() {
           </Card>
         </motion.div>
 
-        {/* Security Notice */}
+        {/* Additional Links */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-center"
+          className="text-center space-y-2"
         >
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-            <p className="text-yellow-800 dark:text-yellow-200 text-sm">
-              <Shield className="w-4 h-4 inline mr-2" />
-              This is a secure admin area. All activities are logged.
-            </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Are you an admin or moderator?
+          </p>
+          <div className="flex justify-center space-x-4">
+            <Link
+              href="/auth/admin-login"
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
+            >
+              Admin Login
+            </Link>
+            <span className="text-gray-400">|</span>
+            <Link
+              href="/auth/moderator-login"
+              className="text-sm text-primary hover:text-primary/80 transition-colors"
+            >
+              Moderator Login
+            </Link>
           </div>
         </motion.div>
       </div>

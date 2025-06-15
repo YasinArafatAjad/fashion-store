@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -103,7 +103,7 @@ export default function DashboardPage() {
     return null; // Will redirect in useEffect
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'delivered':
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';

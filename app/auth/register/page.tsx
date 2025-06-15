@@ -1,16 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Checkbox } from '../../components/ui/checkbox';
+import { useAuth } from '../../../contexts/AuthContext';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Checkbox } from '../../../components/ui/checkbox';
 
 /**
  * User Registration Page Component
@@ -35,7 +35,7 @@ export default function RegisterPage() {
   /**
    * Handle form input changes
    */
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -80,7 +80,7 @@ export default function RegisterPage() {
   /**
    * Handle form submission
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -95,7 +95,7 @@ export default function RegisterPage() {
       
       // Redirect to dashboard after successful registration
       router.push('/dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
       
       // Handle specific Firebase errors
