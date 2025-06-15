@@ -71,6 +71,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
    * @param {string} role - User role (user, admin, moderator)
    */
   const signup = async (email: string, password: string, name: string, role: string = 'user') => {
+    if (!auth || !db) {
+      throw new Error('Firebase is not properly configured');
+    }
+
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       
@@ -104,6 +108,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
    * @param {string} password - User password
    */
   const signin = async (email: string, password: string) => {
+    if (!auth) {
+      throw new Error('Firebase is not properly configured');
+    }
+
     try {
       return await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
@@ -115,6 +123,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
    * Sign out current user
    */
   const logout = async () => {
+    if (!auth) {
+      throw new Error('Firebase is not properly configured');
+    }
+
     try {
       await signOut(auth);
       setUser(null);
@@ -129,6 +141,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
    * @param {string} uid - User ID
    */
   const getUserData = async (uid: string): Promise<UserData | null> => {
+    if (!db) {
+      console.warn('Firestore is not available');
+      return null;
+    }
+
     try {
       const userDoc = await getDoc(doc(db, 'users', uid));
       if (userDoc.exists()) {
@@ -167,6 +184,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Listen for authentication state changes
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
